@@ -21,7 +21,7 @@ Gaps found while reading it:
 | No `src/test`, and CI only builds | Nothing fails when behavior breaks | M1 (done) |
 | Base package is `first.robot` | Renaming gets harder with every file added | M1 (done) |
 | No mechanism, no IO interface, no inputs logged | Replay has nothing to replay yet | M2 (done) |
-| Sim GUI is off by default and nothing can enable an OpMode headless | Agents and CI cannot exercise the robot | M3 |
+| Sim GUI is off by default and nothing can enable an OpMode headless | Agents and CI cannot exercise the robot | M3 (done) |
 | PhotonLib is not installed | Needed for vision | M6 |
 | `AGENTS.md` has no "Interfaces that exist today" or "Known broken or stale" sections | Agents need them once there are mechanisms | M2 (done) |
 | No contributing guide, PR template, code owners or branch protection | Team goals on GitHub rules and commit messages | M1 |
@@ -117,6 +117,23 @@ than real time and give the same result twice.
 
 Done when: `frc sim <scenario>` exits 0 or 1 with a JSON summary, and a
 deliberately broken command makes CI fail.
+
+Results (M3 done; CI step not yet run in the CI container):
+
+- Headless enabling works through `DriverStationSim` (`setDsAttached`,
+  `setOpMode`, `setEnabled`, `notifyNewData`), with the OpMode id found by
+  name in `getOpModeOptions()`.
+- Speed: 100 loops took about 2.1 s paced and 0.14 s with
+  `setUseTiming(false)`. Fast mode is opt-in (`SIM_FAST`) because Commands v3
+  waits use the real clock while the arm physics steps a fixed 20 ms.
+- Replay of a scenario log matches exactly, but only if the Driver Station
+  state is set before the first loop. Changing it mid-run is logged one
+  cycle before the robot sees it, so the first cycles diverge.
+- 2027 log timestamps are in nanoseconds.
+- `NoLoopOverruns` is environment-sensitive (single stalls up to about 2 s
+  seen on an external drive); CI retries each scenario once.
+- Struct signals are listed by `frc log keys` and report "unsupported type"
+  for `stats` and `diff`.
 
 ## M4: YAMS behind IO, keep or drop
 

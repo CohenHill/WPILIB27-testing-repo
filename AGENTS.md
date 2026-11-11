@@ -34,12 +34,22 @@ then write the call. Links are in `docs/reference/2027-notes.md`.
 
 ## Commands
 
+Use the `frc` wrapper (Windows: `frc.cmd`). It finds JDK 25 for you.
+
 - Build and run tests: `./gradlew build`
-- Tests only: `./gradlew test`
-- Simulate (writes a log to `logs/`): `./gradlew run`
-- Replay a log: `AKIT_LOG_PATH=<path to .wpilog> ./gradlew run`
-  (PowerShell: `$env:AKIT_LOG_PATH='<path>'; ./gradlew run`)
-- Windows: use `.\gradlew.bat` in place of `./gradlew`.
+- Tests only: `./frc test`
+- List scenarios: `./frc sim --list`
+- Run a headless scenario: `./frc sim <scenario>`. Prints a one-line JSON
+  summary (also in `build/sim/<scenario>/summary.json`); exit 0 = pass.
+- Simulate with a person at the keyboard (writes a log to `logs/`):
+  `./gradlew run`
+- Replay a log: `./frc replay <log>`. Prints the replayed log's path.
+- Log queries (compact JSON, capped at 50 items unless `--limit`):
+  - `./frc log keys <log> [prefix]`
+  - `./frc log stats <log> <key> [--from s] [--to s]` (seconds from log start)
+  - `./frc log diff <log> <key>`: compares `RealOutputs/<key>` with
+    `ReplayOutputs/<key>` in a replayed log and reports the first divergence.
+    Numbers and booleans only; other types report "unsupported type".
 
 The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 
@@ -53,6 +63,10 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 - `src/main/java/frc/robot/RunProfile.java`: picks each mechanism's IO.
 - `src/main/java/frc/robot/mechanisms/`: one folder per mechanism, with `io/`.
 - `src/main/java/frc/robot/RunMode.java`: pure run mode selection (REAL, SIM, REPLAY).
+- `src/main/java/frc/robot/sim/`: headless scenarios (`SimDriver`,
+  `Scenario`, `Check`, `scenarios/`). Add new scenarios to `Scenarios.java`.
+- `src/main/java/frc/tools/`: log queries behind `frc log`.
+- `frc`, `frc.cmd`: command wrappers in the repo root.
 - Tests live in `src/test/java`.
 
 ## Rules
@@ -94,8 +108,12 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 - `ArmIOTalonFX` compiles but has never run on hardware. The CAN id, bus
   name and gains in `ArmConstants` are placeholders.
 - Sim gains and arm physics in `ArmConstants` are untuned.
-- Nothing enables an OpMode headless yet, so a headless sim run records no
-  arm motion (planned for M3).
+- Scenarios run in real time. `NoLoopOverruns` can fail on a single machine
+  stall (seen on an external drive); CI retries each scenario once.
+- The `Scenarios` CI job has not yet run in the CI container.
+- Scenarios set the Driver Station state in the `Robot` constructor, before the
+  first loop. Changing it mid-run makes the log lead the robot by one cycle
+  and replay diverges for the first cycles.
 
 ## Open questions
 
@@ -107,4 +125,5 @@ None yet. Each entry will name an owner. If a task touches one, stop and ask.
 - [ ] New WPILib or vendor calls were checked against source or docs.
 - [ ] No edits to protected paths (rule 4).
 - [ ] If behavior changed: simulated, or stated as not verified.
+- [ ] Relevant scenarios pass; result quoted from `summary.json`.
 - [ ] New logic has a unit test, or the reason it cannot is stated.

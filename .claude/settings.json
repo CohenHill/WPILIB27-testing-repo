@@ -12,6 +12,7 @@
       "Bash(git add*)",
       "Bash(git commit*)",
       "Bash(git checkout*)",
+      "Bash(./frc *)",
       "WebFetch(domain:docs.wpilib.org)",
       "WebFetch(domain:github.wpilib.org)",
       "WebFetch(domain:docs.advantagekit.org)",
