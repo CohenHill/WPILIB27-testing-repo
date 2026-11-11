@@ -1,7 +1,5 @@
 package frc.robot.opmodes;
 
-import static org.wpilib.units.Units.Seconds;
-
 import frc.robot.Robot;
 import org.littletonrobotics.junction.Logger;
 import org.wpilib.command3.Command;
@@ -10,36 +8,34 @@ import org.wpilib.opmode.OpMode;
 import org.wpilib.opmode.Teleop;
 
 /**
- * Teleop OpMode. Records a heartbeat counter each enabled loop and runs a scripted arm exercise so
- * a sim run produces data without a gamepad.
+ * Teleop OpMode: field-relative swerve drive from the driver gamepad. Records a heartbeat counter
+ * each enabled loop. The scripted arm exercise runs while the driver holds the south face button
+ * (see Controls).
  */
 @Teleop(name = "DriveTeleop")
 public class DriveTeleop implements OpMode {
-  private static final double LOW_RAD = 0.2;
-  private static final double HIGH_RAD = 1.2;
-
-  private final Robot robot;
-  private final Command exercise;
+  private final Command setup;
   private long loopCount = 0;
 
   public DriveTeleop(Robot robot) {
-    this.robot = robot;
-    this.exercise =
+    // Setting a default command inside a command scopes it to that command: when this command is
+    // cancelled in end(), the drive goes back to its stop default.
+    setup =
         Command.noRequirements(
                 coroutine -> {
-                  while (true) {
-                    coroutine.await(robot.arm.moveTo(HIGH_RAD));
-                    coroutine.wait(Seconds.of(1.0));
-                    coroutine.await(robot.arm.moveTo(LOW_RAD));
-                    coroutine.wait(Seconds.of(1.0));
-                  }
+                  robot.drive.setDefaultCommand(
+                      robot.drive.teleopDrive(
+                          robot.controls::driveForward,
+                          robot.controls::driveLeft,
+                          robot.controls::driveTurn));
+                  coroutine.park();
                 })
-            .named("Arm exercise");
+            .named("Teleop drive setup");
   }
 
   @Override
   public void start() {
-    Scheduler.getDefault().schedule(exercise);
+    Scheduler.getDefault().schedule(setup);
   }
 
   @Override
@@ -49,6 +45,6 @@ public class DriveTeleop implements OpMode {
 
   @Override
   public void end() {
-    Scheduler.getDefault().cancel(exercise);
+    Scheduler.getDefault().cancel(setup);
   }
 }

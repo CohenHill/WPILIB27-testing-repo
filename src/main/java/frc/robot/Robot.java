@@ -65,9 +65,9 @@ public class Robot extends LoggedOpModeRobot {
     // Start AdvantageKit logger
     Logger.start();
 
-    controls = new Controls();
     arm = new Arm(RunProfile.armIO(Constants.currentMode));
     drive = new Drive(RunProfile.driveIO(Constants.currentMode));
+    controls = new Controls(arm);
 
     simDriver = SimDriver.fromEnvironment(Constants.currentMode, this).orElse(null);
     if (simDriver != null) {
