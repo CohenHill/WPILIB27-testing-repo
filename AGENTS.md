@@ -52,6 +52,10 @@ Use the `frc` wrapper (Windows: `frc.cmd`). It finds JDK 25 for you.
   - `./frc log diff <log> <key>`: compares `RealOutputs/<key>` with
     `ReplayOutputs/<key>` in a replayed log and reports the first divergence.
     Numbers and booleans only; other types report "unsupported type".
+  - `./frc log events <log>`, `./frc log track <log> Arm`,
+    `./frc log driver-report <log>`: enable/mode/alert/brownout/overrun events,
+    goal-vs-measured error, and driver metrics. Definitions: `docs/metrics.md`.
+    `./frc log pull` is BLOCKED (needs a Systemcore).
 
 The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 

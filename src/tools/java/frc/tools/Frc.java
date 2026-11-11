@@ -32,11 +32,20 @@ public final class Frc {
               ? Arrays.copyOfRange(args, 1, args.length)
               : args;
       FrcArgs a = FrcArgs.parse(rest);
+      if (a.command().equals("pull")) {
+        System.err.println(
+            "frc: pull is BLOCKED: it needs a Systemcore to fetch logs from, and none is"
+                + " available. Copy the log by hand and run the other log commands on it.");
+        return 3;
+      }
       LogData data = LogData.read(a.log());
       String out =
           switch (a.command()) {
             case "keys" -> LogQuery.keys(data, a.key(), a.limit());
             case "stats" -> LogQuery.stats(data, a.key(), a.from(), a.to());
+            case "events" -> LogMetrics.events(data, a.limit());
+            case "track" -> LogMetrics.track(data, a.key());
+            case "driver-report" -> LogMetrics.driverReport(data);
             default -> LogQuery.diff(data, a.key());
           };
       System.out.println(out);
