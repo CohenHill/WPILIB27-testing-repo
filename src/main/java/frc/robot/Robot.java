@@ -26,6 +26,7 @@ public class Robot extends LoggedOpModeRobot {
   public final Drive drive;
   public final RobotContext context;
   private SimHook simHook = null;
+  private DriverDashboard dashboard = null;
 
   public Robot() {
     // Record metadata
@@ -82,6 +83,12 @@ public class Robot extends LoggedOpModeRobot {
         }
       }
     }
+    // The driver table and layout server run on the robot and in an interactive sim, not in replay
+    // and not in headless scenarios.
+    if (Constants.currentMode == RunMode.REAL
+        || (Constants.currentMode == RunMode.SIM && simHook == null)) {
+      dashboard = new DriverDashboard();
+    }
     if (simHook != null && System.getenv("SIM_FAST") != null) {
       // Opt-in only: Commands v3 waits use the real clock, so fast mode desyncs them from physics
       setUseTiming(false);
@@ -109,6 +116,9 @@ public class Robot extends LoggedOpModeRobot {
     arm.recordOutputs();
     drive.recordOutputs();
     context.recordOutputs();
+    if (dashboard != null) {
+      dashboard.update(context, arm);
+    }
   }
 
   @Override

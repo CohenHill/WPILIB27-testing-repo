@@ -80,6 +80,9 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 - `frc`, `frc.cmd`: command wrappers in the repo root. `./frc sync-ai` regenerates
   `.github/instructions/` and `.github/agents/` from `.claude/rules/` and
   `.claude/agents/`; never edit those generated files by hand.
+- `src/main/java/frc/robot/context/`: `RobotContext` (zone, held piece, alliance) and
+  `zones.json` logic. `DriverDashboard.java`: the driver table and layout server.
+  `dashboard/`: how the Elastic layout works. `logs/golden/`: the golden log CI replays.
 - `.claude/`: agents, skills, rules and hook settings. `src/tools/java/frc/tools/hooks/`:
   the hook code (`frc hook <name>`).
 - Tests live in `src/test/java`.
@@ -143,7 +146,10 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 - Sim gains and arm physics in `ArmConstants` are untuned.
 - Scenarios run in real time. `NoLoopOverruns` can fail on a single machine
   stall (seen on an external drive); CI retries each scenario once.
-- The `Scenarios` CI job has not yet run in the CI container.
+- The `Scenarios` CI job (including the golden-log replay) has not yet run in the CI
+  container.
+- `zones.json` polygons are placeholders until kickoff. Nobody has opened
+  `elastic-layout.json` in Elastic yet (see `dashboard/README.md`).
 - Scenarios set the Driver Station state in the `Robot` constructor, before the
   first loop. Changing it mid-run makes the log lead the robot by one cycle
   and replay diverges for the first cycles.

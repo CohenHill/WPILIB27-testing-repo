@@ -227,6 +227,22 @@ Deliverables:
 
 Done when: both autos and the align scenario pass in CI.
 
+### M9 results (done in simulation)
+
+- Context: `RobotContext` (zone, held piece, alliance as triggers and outputs),
+  `zones.json` with placeholder polygons, a unit-tested point-in-zone function,
+  and a zone-dependent action. Scenario `ZoneActionDiffers` proves the same
+  action does different things in two zones.
+- Metrics: `frc log events`, `track`, `driver-report`, defined first in
+  `docs/metrics.md`. `frc log pull` is a stub: BLOCKED without a Systemcore.
+  `timeToAlign` is null until M8 exists.
+- Operations: `match-debrief` skill; the driver table and layout server
+  (`DriverDashboard`, verified: the layout downloads over HTTP from the sim);
+  `logs/golden/match.wpilog` replayed in CI.
+- Not verified: Elastic itself opening `elastic-layout.json`; the CI jobs in the
+  CI container; a driver report from a real match log.
+- Sim and tools code moved out of the robot jar into `src/sim` and `src/tools`.
+
 ### M8 Phase 1 spike result (PathPlannerLib 2027.0.0-alpha-4.1) - Cohen picks the fallback
 
 - **Commands v3 support: none.** Every command class (`FollowPathCommand`,

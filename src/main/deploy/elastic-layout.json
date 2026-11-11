@@ -1,0 +1,62 @@
+{
+  "version": 1.0,
+  "grid_size": 128.0,
+  "tabs": [
+    {
+      "name": "Teleoperated",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Zone",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Telemetry/Driver/Zone",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Holding piece",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Telemetry/Driver/HoldingPiece",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Arm at goal",
+            "x": 640.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Telemetry/Driver/ArmAtGoal",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Alliance",
+            "x": 896.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Telemetry/Driver/Alliance",
+              "period": 0.06
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
