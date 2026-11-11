@@ -11,22 +11,10 @@ import org.wpilib.framework.RobotBase;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is "real" when running on a
- * robot. In simulation it is "replay" if the AKIT_LOG_PATH environment variable is set (to the path
- * of a .wpilog file), and "sim" otherwise. No source edit is needed to switch.
+ * robot. In simulation it is "replay" if the AKIT_LOG_PATH environment variable is set to a
+ * non-blank path of a .wpilog file, and "sim" otherwise. See {@link RunMode#select}.
  */
 public final class Constants {
-  private static final Mode simMode =
-      System.getenv("AKIT_LOG_PATH") != null ? Mode.REPLAY : Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
-
-  public static enum Mode {
-    /** Running on a real robot. */
-    REAL,
-
-    /** Running a physics simulator. */
-    SIM,
-
-    /** Replaying from a log file. */
-    REPLAY
-  }
+  public static final RunMode currentMode =
+      RunMode.select(RobotBase.isReal(), System.getenv("AKIT_LOG_PATH"));
 }
