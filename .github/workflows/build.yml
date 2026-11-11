@@ -16,6 +16,11 @@ jobs:
         run: chmod +x gradlew
       - name: Build robot code
         run: ./gradlew build
+      - name: Check Copilot files are in sync with Claude files
+        run: |
+          chmod +x frc
+          ./gradlew -q toolsJar
+          ./frc sync-ai --check
 
   scenarios:
     name: Scenarios

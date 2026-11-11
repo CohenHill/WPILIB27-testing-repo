@@ -4,7 +4,9 @@ description: Scaffold a new mechanism (IO, sim IO, mechanism, tests, scenario, d
 argument-hint: "[MechanismName]"
 disable-model-invocation: true
 ---
-Create mechanism `$ARGUMENTS` by copying the Arm pattern. First read AGENTS.md,
+Create mechanism `$ARGUMENTS` by copying the Arm pattern. First run
+`echo ${FRC_AI_LEVEL:-1}`: it must be 3 (see `docs/ai-levels.md`); if lower, stop.
+Then read AGENTS.md,
 `docs/robot/arm.md` and every file under
 `src/main/java/frc/robot/mechanisms/arm/`. If `$ARGUMENTS` is empty or
 `mechanisms/<name>/` exists, stop and ask. Use lowercase for the package and

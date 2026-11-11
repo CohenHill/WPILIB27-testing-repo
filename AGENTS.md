@@ -68,7 +68,11 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 - `src/main/java/frc/robot/sim/`: headless scenarios (`SimDriver`,
   `Scenario`, `Check`, `scenarios/`). Add new scenarios to `Scenarios.java`.
 - `src/main/java/frc/tools/`: log queries behind `frc log`.
-- `frc`, `frc.cmd`: command wrappers in the repo root.
+- `frc`, `frc.cmd`: command wrappers in the repo root. `./frc sync-ai` regenerates
+  `.github/instructions/` and `.github/agents/` from `.claude/rules/` and
+  `.claude/agents/`; never edit those generated files by hand.
+- `.claude/`: agents, skills, rules and hook settings. `src/main/java/frc/tools/hooks/`:
+  the hook code (`frc hook <name>`).
 - Tests live in `src/test/java`.
 
 ## Rules
@@ -118,6 +122,12 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 - Scenarios set the Driver Station state in the `Robot` constructor, before the
   first loop. Changing it mid-run makes the log lead the robot by one cycle
   and replay diverges for the first cycles.
+
+## Learning contract
+
+1. You may use AI, but you must be able to explain every line you submit.
+2. Your AI level (`docs/ai-levels.md`) says what the AI may do for you; level 1 if unset.
+3. AI plans, builds and checks; people merge, push and deploy.
 
 ## Open questions
 

@@ -6,8 +6,9 @@ disable-model-invocation: true
 ---
 Feature: $ARGUMENTS
 
-Confirm the user's AI level is 3 (see `docs/ai-levels.md`). If it is lower,
-stop and say which skill to use instead (`/plan` or `/explain`).
+Check the user's AI level: run `echo ${FRC_AI_LEVEL:-1}`. It must be 3 (see
+`docs/ai-levels.md`). If it is lower, stop and say which skill to use instead
+(`/plan` or `/explain`).
 
 1. Plan: delegate to the `planner` subagent. Show its plan. If it starts with
    `STOP:`, stop there.
