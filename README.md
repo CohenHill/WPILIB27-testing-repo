@@ -17,4 +17,5 @@ AdvantageKit logging and replay.
 
 - `AGENTS.md`: project rules and commands, for people and AI tools.
 - `CONTRIBUTING.md`: how to branch, commit and open a pull request.
+- `docs/ROADMAP.md`: what is being built and in what order.
 - `docs/reference/2027-notes.md`: links to the 2027 documentation.
