@@ -1,0 +1,82 @@
+name: Auto approve after checks
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed]
+  check_suite:
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  approve:
+    if: github.event_name == 'pull_request_target' && github.event.action != 'closed' || github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve when all checks pass
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHECK_SHA: ${{ github.event.check_suite.head_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "pull_request_target" ]]; then
+            sha=$(gh api "repos/$GH_REPO/pulls/$PR_NUMBER" --jq '.head.sha')
+          else
+            sha="$CHECK_SHA"
+            PR_NUMBER=$(gh api "repos/$GH_REPO/commits/$sha/pulls" \
+              -H 'Accept: application/vnd.github+json' --jq '.[0].number // empty')
+            if [[ -z "$PR_NUMBER" ]]; then
+              echo "No pull request is associated with commit $sha"
+              exit 0
+            fi
+          fi
+
+          checks=$(gh api --paginate "repos/$GH_REPO/commits/$sha/check-runs" \
+            -H 'Accept: application/vnd.github+json' \
+            --jq '[.check_runs[] | select(.name != "Auto approve after checks")]')
+
+          if ! jq -e 'length > 0 and all(.[]; .status == "completed" and (.conclusion == "success" or .conclusion == "neutral" or .conclusion == "skipped"))' <<<"$checks" >/dev/null; then
+            echo "Not all checks have completed successfully for $sha"
+            exit 0
+          fi
+
+          actor=$(gh api user --jq '.login')
+          already_approved=$(gh api "repos/$GH_REPO/pulls/$PR_NUMBER/reviews" --paginate \
+            --jq --arg actor "$actor" '[.[] | select(.user.login == $actor and .state == "APPROVED")] | length')
+          if [[ "$already_approved" != "0" ]]; then
+            echo "Pull request #$PR_NUMBER is already approved by $actor"
+            exit 0
+          fi
+
+          gh pr review "$PR_NUMBER" --repo "$GH_REPO" --approve \
+            --body "All required check runs completed successfully for commit $sha."
+
+  delete-branch:
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged pull request branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          head_repo=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json headRepository --jq '.headRepository.fullName // empty')
+          branch=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json headRefName --jq '.headRefName')
+          default_branch=$(gh repo view "$GH_REPO" --json defaultBranchRef --jq '.defaultBranchRef.name')
+          if [[ "$head_repo" == "$GH_REPO" && "$branch" != "$default_branch" ]]; then
+            gh api --method DELETE "repos/$GH_REPO/git/refs/heads/$branch"
+            echo "Deleted $GH_REPO:$branch"
+          else
+            echo "Branch is from a fork or is the default branch; leaving it unchanged"
+          fi
