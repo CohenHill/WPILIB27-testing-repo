@@ -44,6 +44,8 @@ jobs:
         run: ./frc sim DriveRotateInPlace || ./frc sim DriveRotateInPlace
       - name: Run TeleopIdleHoldsStill
         run: ./frc sim TeleopIdleHoldsStill || ./frc sim TeleopIdleHoldsStill
+      - name: Run ZoneActionDiffers
+        run: ./frc sim ZoneActionDiffers || ./frc sim ZoneActionDiffers
       - name: Replay a scenario log and compare outputs
         run: |
           ./frc sim ArmReachesGoal
@@ -51,6 +53,12 @@ jobs:
           OUT=$(./frc replay "$LOG" | sed 's/.*"replayLog":"\([^"]*\)".*/\1/')
           ./frc log diff "$OUT" Arm/GoalRad | tee /dev/stderr | grep -q '"diverged":false'
           ./frc log diff "$OUT" Arm/AtGoal | tee /dev/stderr | grep -q '"diverged":false'
+      - name: Replay the golden log and compare outputs
+        run: |
+          OUT=$(./frc replay logs/golden/match.wpilog | sed 's/.*"replayLog":"\([^"]*\)".*/\1/')
+          for k in Arm/GoalRad Arm/AtGoal Drive/PoseX Drive/PoseY Drive/HeadingRad; do
+            ./frc log diff "$OUT" "$k" | tee /dev/stderr | grep -q '"diverged":false'
+          done
       - name: Upload scenario results
         if: always()
         uses: actions/upload-artifact@v4

@@ -8,8 +8,8 @@ Owner: unassigned (mentor until a student takes it).
 ## Hardware assumed (not confirmed)
 
 SDS MK5i R2 (6.03:1 drive, 26:1 steer), Kraken X60 drive, **steering motor:
-Kraken X60 assumed, X44 not ruled out (to confirm)**, CANcoder, Pigeon 2,
-CANivore. `TunerConstants` is copied from CTRE's Phoenix6-Examples
+Kraken X60 (decided by Cohen: X60 for all of drive)**, CANcoder, Pigeon 2,
+CANivore. The rest of this list is still assumed. `TunerConstants` is copied from CTRE's Phoenix6-Examples
 (`2027_alpha7`) and edited for the above. Every hardware value in it is a
 placeholder: CAN ids, encoder offsets, inversions, module positions, coupling
 ratio, steer gains and speed at 12 V. Replace the file with real Tuner X

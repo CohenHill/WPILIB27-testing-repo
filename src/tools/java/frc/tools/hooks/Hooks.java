@@ -1,5 +1,6 @@
 package frc.tools.hooks;
 
+import frc.robot.util.MiniJson;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

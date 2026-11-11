@@ -1,5 +1,7 @@
 package frc.robot;
 
+import frc.robot.context.RobotContext;
+import frc.robot.context.ZoneActions;
 import frc.robot.mechanisms.arm.Arm;
 import frc.robot.opmodes.ArmExercise;
 import org.wpilib.command3.button.CommandGamepad;
@@ -11,9 +13,11 @@ public class Controls {
 
   private final CommandGamepad driver = new CommandGamepad(DRIVER_PORT);
 
-  public Controls(Arm arm) {
+  public Controls(Arm arm, RobotContext context) {
     // Hold the south face button (A on an Xbox layout) to run the scripted arm exercise.
     driver.faceDown().whileTrue(ArmExercise.command(arm));
+    // East face button (B): the same press does a different thing depending on the zone.
+    driver.faceRight().onTrue(ZoneActions.command(context, arm));
   }
 
   /**

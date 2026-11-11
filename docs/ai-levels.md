@@ -8,7 +8,7 @@ explain every line you submit.
 | --- | --- | --- | --- |
 | 0 | AI off | Nothing | Everything, with mentors and docs |
 | 1 | Learn | Explain code (`/explain`), quiz you | Write all code |
-| 2 | Plan and check | Plan (`/plan`), verify (`/verify`), run scenarios (`sim`), replay and read logs (`replay`, `log-triage`) | Write all code |
+| 2 | Plan and check | Plan (`/plan`), verify (`/verify`), run scenarios (`sim`), replay and read logs (`replay`, `log-triage`, `match-debrief`) | Write all code |
 | 3 | Build | Everything in 2, plus build from an approved plan (`/feature`, `/new-mechanism`) | Approve the plan, review the result, explain it back |
 
 Level 1 is the default when no level is set.

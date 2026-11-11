@@ -9,6 +9,11 @@ public final class ArmConstants {
 
   public static final double MAX_ANGLE_RAD = 1.6;
 
+  /** Preset goal angles, in radians. */
+  public static final double PRESET_LOW_RAD = 0.2;
+
+  public static final double PRESET_HIGH_RAD = 1.2;
+
   /** How close to the goal counts as "at goal", in radians. */
   public static final double GOAL_TOLERANCE_RAD = 0.05;
 

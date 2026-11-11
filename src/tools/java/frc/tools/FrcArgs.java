@@ -24,7 +24,8 @@ public record FrcArgs(String command, String log, String key, Double from, Doubl
       throw new UsageException("expected one of: keys, stats, diff");
     }
     String command = args[0];
-    if (!List.of("keys", "stats", "diff").contains(command)) {
+    if (!List.of("keys", "stats", "diff", "events", "track", "driver-report", "pull")
+        .contains(command)) {
       throw new UsageException("unknown log command: " + command);
     }
 
@@ -67,19 +68,33 @@ public record FrcArgs(String command, String log, String key, Double from, Doubl
       throw new UsageException("--from and --to only apply to stats");
     }
 
-    int min = command.equals("keys") ? 1 : 2;
-    int max = 2;
+    int min =
+        switch (command) {
+          case "pull" -> 0;
+          case "keys", "events", "driver-report" -> 1;
+          default -> 2;
+        };
+    int max =
+        switch (command) {
+          case "pull" -> 0;
+          case "events", "driver-report" -> 1;
+          default -> 2;
+        };
     if (positional.size() < min || positional.size() > max) {
       throw new UsageException(
           switch (command) {
             case "keys" -> "usage: log keys <log> [prefix]";
             case "stats" -> "usage: log stats <log> <key> [--from s] [--to s]";
+            case "events" -> "usage: log events <log> [--limit n]";
+            case "track" -> "usage: log track <log> <mechanism>";
+            case "driver-report" -> "usage: log driver-report <log>";
+            case "pull" -> "usage: log pull";
             default -> "usage: log diff <log> <key>";
           });
     }
     return new FrcArgs(
         command,
-        positional.get(0),
+        positional.isEmpty() ? null : positional.get(0),
         positional.size() > 1 ? positional.get(1) : null,
         from,
         to,

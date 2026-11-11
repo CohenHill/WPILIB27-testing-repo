@@ -11,6 +11,25 @@ java {
     targetCompatibility = JavaVersion.VERSION_25
 }
 
+// Code that is not robot code lives in its own source sets, so the jar deployed to the robot
+// (the "main" source set only) does not contain it:
+//   src/tools/java  the frc CLI, log queries, hooks and sync-ai (needs only main's MiniJson)
+//   src/sim/java    headless scenarios and their scripted OpModes (found by ServiceLoader)
+sourceSets {
+    tools {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+    sim {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+    test {
+        compileClasspath += sourceSets.tools.output + sourceSets.sim.output
+        runtimeClasspath += sourceSets.tools.output + sourceSets.sim.output
+    }
+}
+
 def ROBOT_MAIN_CLASS = "frc.Main"
 
 // Define my targets (SystemCore) and artifacts (deployable files)
@@ -66,26 +85,27 @@ task(replayWatch, type: JavaExec) {
 // Prints scenario names, one per line (used by `frc sim --list`)
 task(listScenarios, type: JavaExec) {
     mainClass = "frc.robot.sim.ListScenarios"
-    classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.sim.runtimeClasspath
 }
 
 // Log queries for the frc CLI: `./gradlew -q frcLog --args="keys <log>"`
 task(frcLog, type: JavaExec) {
     mainClass = "frc.tools.Frc"
-    classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.tools.runtimeClasspath
 }
 
 // A small runnable jar of the frc tools (hooks), so hooks start fast without Gradle.
 task(toolsJar, type: Jar) {
     archiveBaseName = 'frc-tools'
     archiveVersion = ''
+    from(sourceSets.tools.output)
     from(sourceSets.main.output) {
-        include 'frc/tools/**'
+        include 'frc/robot/util/MiniJson*'
     }
     manifest {
         attributes 'Main-Class': 'frc.tools.Frc'
     }
-    dependsOn classes
+    dependsOn toolsClasses
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
@@ -130,6 +150,12 @@ wpi.sim.addGui().defaultEnabled = false
 wpi.sim.addDriverstation()
 
 application.mainClass = ROBOT_MAIN_CLASS
+
+// Simulation (./gradlew run, ./frc sim) runs with the sim source set on the classpath. The
+// deployed jar does not include it.
+tasks.named('run') {
+    classpath = sourceSets.sim.runtimeClasspath
+}
 
 deployArtifact.configureApplication(application)
 wpi.java.configureApplication(application)

@@ -18,6 +18,11 @@ public final class LogData {
     public final List<Double> times = new ArrayList<>();
     public final List<Double> values = new ArrayList<>();
 
+    /** Text samples, for string and string[] signals (a string is a one-element array). */
+    public final List<String[]> texts = new ArrayList<>();
+
+    public final List<Double> textTimes = new ArrayList<>();
+
     Entry(String name, String type) {
       this.name = name;
       this.type = type;
@@ -25,6 +30,10 @@ public final class LogData {
 
     public boolean isNumeric() {
       return isNumericType(type);
+    }
+
+    public boolean isText() {
+      return type.equals("string") || type.equals("string[]");
     }
   }
 
@@ -39,6 +48,9 @@ public final class LogData {
       default -> false;
     };
   }
+
+  /** Timestamp of the latest data record, in seconds. */
+  public double endSeconds = Double.NaN;
 
   /** Timestamp of the earliest data record (not entry headers) in the log, in seconds. */
   public double startSeconds = Double.NaN;
@@ -62,12 +74,27 @@ public final class LogData {
       if (!record.isControl() && (Double.isNaN(data.startSeconds) || ts < data.startSeconds)) {
         data.startSeconds = ts;
       }
+      if (!record.isControl() && (Double.isNaN(data.endSeconds) || ts > data.endSeconds)) {
+        data.endSeconds = ts;
+      }
       if (record.isStart()) {
         DataLogRecord.StartRecordData start = record.getStartData();
         Entry e = data.entries.computeIfAbsent(start.name, n -> new Entry(n, start.type));
         byId.put(start.entry, e);
       } else if (!record.isControl()) {
         Entry e = byId.get(record.getEntry());
+        if (e != null && e.isText()) {
+          try {
+            e.texts.add(
+                e.type.equals("string")
+                    ? new String[] {record.getString()}
+                    : record.getStringArray());
+            e.textTimes.add(record.getTimestamp() / 1e9);
+          } catch (RuntimeException ex) {
+            // Skip malformed samples
+          }
+          continue;
+        }
         if (e == null || !e.isNumeric()) {
           continue;
         }

@@ -182,8 +182,8 @@ not, fall back to per-module `ModuleIO` on raw Phoenix 6 devices.
 
 Done when: scenarios pass in CI and a replayed drive log matches.
 
-Results (M6 done in simulation; hardware, Tuner X output and the steering-motor
-decision are still open):
+Results (M6 done in simulation; hardware and Tuner X output are still open; steering
+motor decided: Kraken X60):
 
 - `TunerConstants` was copied from the Phoenix6-Examples `2027_alpha7` branch
   and edited, because no generated file existed. All hardware values are
@@ -196,6 +196,12 @@ decision are still open):
   fallback was not needed and `0002-drive-io.md` was not written.
 
 ## M7: Vision and localization
+
+> **BLOCKED (Cohen, confirmed):** PhotonLib does not support this version of
+> WPILib, so it cannot be installed. M7 waits for a PhotonLib release that does.
+> M8 depends on M7 and waits with it. The M7 design (`VisionIO` per camera,
+> shared rejection rules, `drive.addVisionMeasurement`) is unchanged; the Drive
+> IO already has `addVisionMeasurement` ready.
 
 Deliverables:
 
@@ -220,6 +226,45 @@ Deliverables:
   time to align.
 
 Done when: both autos and the align scenario pass in CI.
+
+### M9 results (done in simulation)
+
+- Context: `RobotContext` (zone, held piece, alliance as triggers and outputs),
+  `zones.json` with placeholder polygons, a unit-tested point-in-zone function,
+  and a zone-dependent action. Scenario `ZoneActionDiffers` proves the same
+  action does different things in two zones.
+- Metrics: `frc log events`, `track`, `driver-report`, defined first in
+  `docs/metrics.md`. `frc log pull` is a stub: BLOCKED without a Systemcore.
+  `timeToAlign` is null until M8 exists.
+- Operations: `match-debrief` skill; the driver table and layout server
+  (`DriverDashboard`, verified: the layout downloads over HTTP from the sim);
+  `logs/golden/match.wpilog` replayed in CI.
+- Not verified: Elastic itself opening `elastic-layout.json`; the CI jobs in the
+  CI container; a driver report from a real match log.
+- Sim and tools code moved out of the robot jar into `src/sim` and `src/tools`.
+
+### M8 Phase 1 spike result (PathPlannerLib 2027.0.0-alpha-4.1) - Cohen picks the fallback
+
+- **Commands v3 support: none.** Every command class (`FollowPathCommand`,
+  `PathPlannerAuto`, `AutoBuilder`, `NamedCommands`, event triggers) imports
+  `org.wpilib.command2`. Commands v2 cannot coexist with the v3 vendordep, so
+  those classes cannot be used.
+- **Direct sampling: partly works.** `PathPlannerPath`, `PathPlannerTrajectory`,
+  `RobotConfig` and `ModuleConfig` load and run with only Commands v3 on the
+  classpath (no `NoClassDefFoundError`), even though `PathPlannerPath` imports a
+  v2 type. A test that built a 3-pose path and called `generateTrajectory(...)`
+  and `sample(t)` produced 18 path points and 18 states, but a total time of
+  0.0 s, so every sample was the end state. Not resolved: it may be a mistake in
+  that minimal setup (placeholder `RobotConfig`) or a problem in this alpha. A
+  follow-up spike should start from PathPlanner's own GUI settings and a path
+  file from the editor.
+- **What the library needs from the drivetrain:** a `RobotConfig` (mass, MOI,
+  module offsets, wheel radius, max speed, wheel COF, drive motor, current
+  limit) and pose and chassis velocities; following would be our own v3 command.
+- **Options (in the plan's order):** (1) sample PathPlanner trajectories and
+  follow them from our own v3 command, after the 0.0 s issue is understood;
+  (2) WPILib's 2027 trajectory API; (3) Choreo.
+- No code was kept from the spike.
 
 ## M9: Context controls, driver metrics, dashboard
 

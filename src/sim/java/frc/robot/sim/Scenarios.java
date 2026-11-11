@@ -4,7 +4,9 @@ import frc.robot.sim.scenarios.ArmHoldsWithinLimits;
 import frc.robot.sim.scenarios.ArmReachesGoal;
 import frc.robot.sim.scenarios.DriveRotateInPlace;
 import frc.robot.sim.scenarios.DriveSquare;
+import frc.robot.sim.scenarios.SimMatch;
 import frc.robot.sim.scenarios.TeleopIdleHoldsStill;
+import frc.robot.sim.scenarios.ZoneActionDiffers;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +20,9 @@ public final class Scenarios {
           new ArmHoldsWithinLimits(),
           new DriveSquare(),
           new DriveRotateInPlace(),
-          new TeleopIdleHoldsStill());
+          new TeleopIdleHoldsStill(),
+          new ZoneActionDiffers(),
+          new SimMatch());
 
   public static Optional<Scenario> find(String name) {
     return ALL.stream().filter(s -> s.name().equals(name)).findFirst();
