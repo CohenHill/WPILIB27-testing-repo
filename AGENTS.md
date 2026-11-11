@@ -41,6 +41,8 @@ Use the `frc` wrapper (Windows: `frc.cmd`). It finds JDK 25 for you.
 - List scenarios: `./frc sim --list`
 - Run a headless scenario: `./frc sim <scenario>`. Prints a one-line JSON
   summary (also in `build/sim/<scenario>/summary.json`); exit 0 = pass.
+- Choose the Arm IO with `ARM_IO=yams|plain` (default `plain`), e.g.
+  `ARM_IO=yams ./frc sim ArmReachesGoal`. See `docs/decisions/0001-yams.md`.
 - Simulate with a person at the keyboard (writes a log to `logs/`):
   `./gradlew run`
 - Replay a log: `./frc replay <log>`. Prints the replayed log's path.
@@ -105,8 +107,10 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 
 ## Known broken or stale
 
-- `ArmIOTalonFX` compiles but has never run on hardware. The CAN id, bus
+- `ArmIOTalonFX` and `ArmIOYams` compile but have never run on hardware. The CAN id, bus
   name and gains in `ArmConstants` are placeholders.
+- YAMS decision is pending (`docs/decisions/0001-yams.md`). YAMS runs write
+  Phoenix signal-log folders under `logs/`.
 - Sim gains and arm physics in `ArmConstants` are untuned.
 - Scenarios run in real time. `NoLoopOverruns` can fail on a single machine
   stall (seen on an external drive); CI retries each scenario once.
