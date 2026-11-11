@@ -2,18 +2,18 @@ name: Auto approve after checks
 
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, closed]
   check_suite:
     types: [completed]
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   checks: read
 
 jobs:
   approve:
-    if: github.event_name == 'pull_request_target' || github.event.check_suite.conclusion == 'success'
+    if: github.event_name == 'pull_request_target' && github.event.action != 'closed' || github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Approve when all checks pass
@@ -58,3 +58,25 @@ jobs:
 
           gh pr review "$PR_NUMBER" --repo "$GH_REPO" --approve \
             --body "All required check runs completed successfully for commit $sha."
+
+  delete-branch:
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged pull request branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          head_repo=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json headRepository --jq '.headRepository.fullName // empty')
+          branch=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json headRefName --jq '.headRefName')
+          default_branch=$(gh repo view "$GH_REPO" --json defaultBranchRef --jq '.defaultBranchRef.name')
+          if [[ "$head_repo" == "$GH_REPO" && "$branch" != "$default_branch" ]]; then
+            gh api --method DELETE "repos/$GH_REPO/git/refs/heads/$branch"
+            echo "Deleted $GH_REPO:$branch"
+          else
+            echo "Branch is from a fork or is the default branch; leaving it unchanged"
+          fi
