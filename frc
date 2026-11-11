@@ -66,7 +66,7 @@ case "$cmd" in
   hook|sync-ai)
     # Hooks and sync-ai run from a small jar so they start fast. Build it if missing or stale.
     jar=build/libs/frc-tools.jar
-    if [ ! -f "$jar" ] || [ -n "$(find src/main/java/frc/tools build.gradle -newer "$jar" \( -name '*.java' -o -name 'build.gradle' \) 2>/dev/null | head -n 1)" ]; then
+    if [ ! -f "$jar" ] || [ -n "$(find src/tools/java src/main/java/frc/robot/util build.gradle -newer "$jar" \( -name '*.java' -o -name 'build.gradle' \) 2>/dev/null | head -n 1)" ]; then
       ./gradlew -q --console=plain toolsJar >/dev/null 2>&1 || {
         echo "frc: could not build $jar" >&2
         exit 1

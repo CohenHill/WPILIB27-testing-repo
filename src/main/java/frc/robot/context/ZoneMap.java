@@ -1,6 +1,6 @@
 package frc.robot.context;
 
-import frc.tools.hooks.MiniJson;
+import frc.robot.util.MiniJson;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;

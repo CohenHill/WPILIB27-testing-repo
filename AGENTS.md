@@ -65,13 +65,18 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 - `src/main/java/frc/robot/RunProfile.java`: picks each mechanism's IO.
 - `src/main/java/frc/robot/mechanisms/`: one folder per mechanism, with `io/`.
 - `src/main/java/frc/robot/RunMode.java`: pure run mode selection (REAL, SIM, REPLAY).
-- `src/main/java/frc/robot/sim/`: headless scenarios (`SimDriver`,
-  `Scenario`, `Check`, `scenarios/`). Add new scenarios to `Scenarios.java`.
-- `src/main/java/frc/tools/`: log queries behind `frc log`.
+- `src/sim/java/frc/robot/sim/`: headless scenarios (`SimDriver`, `Scenario`,
+  `Check`, `scenarios/`) and, in `src/sim/java/frc/robot/opmodes/`, the scripted
+  OpModes only they use. Add new scenarios to `Scenarios.java`. This is a separate
+  source set: the robot jar does not contain it, and `Robot` finds it at runtime
+  through `SimHook` and `ServiceLoader`.
+- `src/tools/java/frc/tools/`: log queries behind `frc log`, `sync-ai` and the
+  hooks. Also a separate source set (not in the robot jar). Robot code must
+  never import from it.
 - `frc`, `frc.cmd`: command wrappers in the repo root. `./frc sync-ai` regenerates
   `.github/instructions/` and `.github/agents/` from `.claude/rules/` and
   `.claude/agents/`; never edit those generated files by hand.
-- `.claude/`: agents, skills, rules and hook settings. `src/main/java/frc/tools/hooks/`:
+- `.claude/`: agents, skills, rules and hook settings. `src/tools/java/frc/tools/hooks/`:
   the hook code (`frc hook <name>`).
 - Tests live in `src/test/java`.
 

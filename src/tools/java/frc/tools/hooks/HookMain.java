@@ -1,5 +1,6 @@
 package frc.tools.hooks;
 
+import frc.robot.util.MiniJson;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

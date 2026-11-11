@@ -29,8 +29,9 @@ Create, matching the Arm's structure and style:
 7. `Robot`: add the mechanism; call its `updateInputs()` before the scheduler
    and `recordOutputs()` after, in the order the Arm uses.
 8. `src/test/java/.../XTest.java`: tests for the pure helpers (no natives).
-9. A scenario in `frc/robot/sim/scenarios/` with real pass criteria on logged
-   or public values, registered in `Scenarios.ALL`.
+9. A scenario in `src/sim/java/frc/robot/sim/scenarios/` with real pass criteria
+   on logged or public values, registered in `Scenarios.ALL`. If it needs a
+   scripted OpMode, put that in `src/sim/java/frc/robot/opmodes/`.
 10. `docs/robot/<name>.md` card (owner line "unassigned") and an entry under
     "Interfaces that exist today" and "Known broken or stale" in AGENTS.md.
 

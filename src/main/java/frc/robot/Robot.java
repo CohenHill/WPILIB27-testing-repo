@@ -11,7 +11,7 @@ import frc.robot.context.RobotContext;
 import frc.robot.context.ZoneMap;
 import frc.robot.mechanisms.arm.Arm;
 import frc.robot.mechanisms.drive.Drive;
-import frc.robot.sim.SimDriver;
+import java.util.ServiceLoader;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedOpModeRobot;
 import org.littletonrobotics.junction.Logger;
@@ -25,7 +25,7 @@ public class Robot extends LoggedOpModeRobot {
   public final Arm arm;
   public final Drive drive;
   public final RobotContext context;
-  private SimDriver simDriver = null;
+  private SimHook simHook = null;
 
   public Robot() {
     // Record metadata
@@ -73,11 +73,16 @@ public class Robot extends LoggedOpModeRobot {
     context = new RobotContext(drive::getPose, ZoneMap.load());
     controls = new Controls(arm, context);
 
-    simDriver = SimDriver.fromEnvironment(Constants.currentMode, this).orElse(null);
-    if (simDriver != null) {
-      simDriver.begin();
+    if (Constants.currentMode == RunMode.SIM) {
+      // Sim-only hooks (headless scenarios) live outside the robot code and are found at runtime.
+      for (SimHook hook : ServiceLoader.load(SimHook.class)) {
+        if (hook.begin(this)) {
+          simHook = hook;
+          break;
+        }
+      }
     }
-    if (simDriver != null && System.getenv("SIM_FAST") != null) {
+    if (simHook != null && System.getenv("SIM_FAST") != null) {
       // Opt-in only: Commands v3 waits use the real clock, so fast mode desyncs them from physics
       setUseTiming(false);
     }
@@ -108,8 +113,8 @@ public class Robot extends LoggedOpModeRobot {
 
   @Override
   public void simulationPeriodic() {
-    if (simDriver != null) {
-      simDriver.update();
+    if (simHook != null) {
+      simHook.update();
     }
   }
 }

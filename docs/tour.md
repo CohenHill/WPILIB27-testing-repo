@@ -60,7 +60,7 @@ Unit tests of the pure helpers. They need no robot and no WPILib natives.
 
 > Question: which boundary values are tested, and why those?
 
-## 8. The scenario: `frc/robot/sim/scenarios/ArmReachesGoal.java`
+## 8. The scenario: `src/sim/java/frc/robot/sim/scenarios/ArmReachesGoal.java`
 
 A headless simulation with a pass or fail. Run it:
 
