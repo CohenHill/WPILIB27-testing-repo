@@ -38,6 +38,12 @@ jobs:
         run: ./frc sim ArmReachesGoal || ./frc sim ArmReachesGoal
       - name: Run ArmHoldsWithinLimits
         run: ./frc sim ArmHoldsWithinLimits || ./frc sim ArmHoldsWithinLimits
+      - name: Run DriveSquare
+        run: ./frc sim DriveSquare || ./frc sim DriveSquare
+      - name: Run DriveRotateInPlace
+        run: ./frc sim DriveRotateInPlace || ./frc sim DriveRotateInPlace
+      - name: Run TeleopIdleHoldsStill
+        run: ./frc sim TeleopIdleHoldsStill || ./frc sim TeleopIdleHoldsStill
       - name: Replay a scenario log and compare outputs
         run: |
           ./frc sim ArmReachesGoal

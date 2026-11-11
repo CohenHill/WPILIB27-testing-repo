@@ -182,6 +182,19 @@ not, fall back to per-module `ModuleIO` on raw Phoenix 6 devices.
 
 Done when: scenarios pass in CI and a replayed drive log matches.
 
+Results (M6 done in simulation; hardware, Tuner X output and the steering-motor
+decision are still open):
+
+- `TunerConstants` was copied from the Phoenix6-Examples `2027_alpha7` branch
+  and edited, because no generated file existed. All hardware values are
+  placeholders.
+- The CTRE drivetrain simulation runs on its own 4 ms wall-clock thread
+  (answered the spike).
+- Replay matches on `Drive/PoseX`, `PoseY` and `HeadingRad`. Struct outputs
+  cannot be diffed with `frc log diff`, so numeric copies were added.
+- The wrapped drivetrain logs and replays cleanly, so the per-module `ModuleIO`
+  fallback was not needed and `0002-drive-io.md` was not written.
+
 ## M7: Vision and localization
 
 Deliverables:

@@ -18,7 +18,7 @@ public class ArmReachesGoal implements Scenario {
 
   @Override
   public String opMode() {
-    return "DriveTeleop";
+    return "Arm Exercise";
   }
 
   @Override
