@@ -24,15 +24,20 @@ public final class ArmConstants {
   public static final double START_ANGLE_RAD = 0.0;
 
   /** Simulation control gains. Volts per radian, volts per radian per second, volts. */
-  public static final double SIM_KP = 60.0;
+  public static final double SIM_KP = 40.0;
 
-  public static final double SIM_KD = 4.0;
-  public static final double SIM_KG = 1.0;
+  public static final double SIM_KD = 0.2;
+  public static final double SIM_KG = 0.12;
 
   /** Placeholder CAN id and bus name. Not wired to hardware. */
   public static final int CAN_ID = 20;
 
   public static final String CAN_BUS = "canivore";
+
+  /** YAMS closed-loop gains (volts per mechanism rotation, and per rotation per second). */
+  public static final double YAMS_KP = 15 * (2.0 * Math.PI);
+
+  public static final double YAMS_KD = 0.0;
 
   /** Real hardware position gain, in volts per motor rotation. Untuned placeholder. */
   public static final double TALON_KP = 10.0;

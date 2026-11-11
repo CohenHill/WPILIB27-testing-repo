@@ -27,6 +27,21 @@ public class Arm implements Mechanism {
     return Math.abs(positionRad - goalRad) <= ArmConstants.GOAL_TOLERANCE_RAD;
   }
 
+  /** Latest logged arm angle, in radians. */
+  public double getPositionRad() {
+    return inputs.positionRad;
+  }
+
+  /** Current goal angle, in radians. */
+  public double getGoalRad() {
+    return goalRad;
+  }
+
+  /** True when the arm is within tolerance of its goal. */
+  public boolean isAtGoal() {
+    return atGoal(inputs.positionRad, goalRad);
+  }
+
   /** Reads the IO and logs the inputs. Call every loop, before the scheduler runs. */
   public void updateInputs() {
     io.updateInputs(inputs);

@@ -16,3 +16,37 @@ jobs:
         run: chmod +x gradlew
       - name: Build robot code
         run: ./gradlew build
+
+  scenarios:
+    name: Scenarios
+    needs: build
+    runs-on: ubuntu-latest
+    container: wpilib/systemcore-cross-ubuntu:2027-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Grant execute permission
+        run: chmod +x gradlew frc
+      # A scenario runs in real time, so a single machine stall can trip its
+      # loop-overrun check. Retry once: a real failure fails both attempts.
+      - name: Run ArmReachesGoal
+        run: ./frc sim ArmReachesGoal || ./frc sim ArmReachesGoal
+      - name: Run ArmHoldsWithinLimits
+        run: ./frc sim ArmHoldsWithinLimits || ./frc sim ArmHoldsWithinLimits
+      - name: Replay a scenario log and compare outputs
+        run: |
+          ./frc sim ArmReachesGoal
+          LOG=$(ls -t logs/*.wpilog | head -n 1)
+          OUT=$(./frc replay "$LOG" | sed 's/.*"replayLog":"\([^"]*\)".*/\1/')
+          ./frc log diff "$OUT" Arm/GoalRad | tee /dev/stderr | grep -q '"diverged":false'
+          ./frc log diff "$OUT" Arm/AtGoal | tee /dev/stderr | grep -q '"diverged":false'
+      - name: Upload scenario results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scenario-results
+          path: |
+            build/sim/
+            logs/
+            build/frc-*.log
+          if-no-files-found: ignore
