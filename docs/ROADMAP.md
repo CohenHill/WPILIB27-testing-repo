@@ -221,6 +221,29 @@ Deliverables:
 
 Done when: both autos and the align scenario pass in CI.
 
+### M8 Phase 1 spike result (PathPlannerLib 2027.0.0-alpha-4.1) - Cohen picks the fallback
+
+- **Commands v3 support: none.** Every command class (`FollowPathCommand`,
+  `PathPlannerAuto`, `AutoBuilder`, `NamedCommands`, event triggers) imports
+  `org.wpilib.command2`. Commands v2 cannot coexist with the v3 vendordep, so
+  those classes cannot be used.
+- **Direct sampling: partly works.** `PathPlannerPath`, `PathPlannerTrajectory`,
+  `RobotConfig` and `ModuleConfig` load and run with only Commands v3 on the
+  classpath (no `NoClassDefFoundError`), even though `PathPlannerPath` imports a
+  v2 type. A test that built a 3-pose path and called `generateTrajectory(...)`
+  and `sample(t)` produced 18 path points and 18 states, but a total time of
+  0.0 s, so every sample was the end state. Not resolved: it may be a mistake in
+  that minimal setup (placeholder `RobotConfig`) or a problem in this alpha. A
+  follow-up spike should start from PathPlanner's own GUI settings and a path
+  file from the editor.
+- **What the library needs from the drivetrain:** a `RobotConfig` (mass, MOI,
+  module offsets, wheel radius, max speed, wheel COF, drive motor, current
+  limit) and pose and chassis velocities; following would be our own v3 command.
+- **Options (in the plan's order):** (1) sample PathPlanner trajectories and
+  follow them from our own v3 command, after the 0.0 s issue is understood;
+  (2) WPILib's 2027 trajectory API; (3) Choreo.
+- No code was kept from the spike.
+
 ## M9: Context controls, driver metrics, dashboard
 
 Deliverables:
