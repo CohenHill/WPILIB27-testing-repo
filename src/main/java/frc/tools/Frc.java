@@ -8,6 +8,9 @@ public final class Frc {
   private Frc() {}
 
   public static void main(String[] args) {
+    if (args.length > 0 && args[0].equals("hook")) {
+      System.exit(frc.tools.hooks.HookMain.run(java.util.Arrays.copyOfRange(args, 1, args.length)));
+    }
     System.exit(run(args));
   }
 

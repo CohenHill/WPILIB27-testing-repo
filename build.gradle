@@ -75,6 +75,19 @@ task(frcLog, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+// A small runnable jar of the frc tools (hooks), so hooks start fast without Gradle.
+task(toolsJar, type: Jar) {
+    archiveBaseName = 'frc-tools'
+    archiveVersion = ''
+    from(sourceSets.main.output) {
+        include 'frc/tools/**'
+    }
+    manifest {
+        attributes 'Main-Class': 'frc.tools.Frc'
+    }
+    dependsOn classes
+}
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
