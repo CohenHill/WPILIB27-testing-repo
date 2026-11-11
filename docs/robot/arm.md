@@ -31,7 +31,7 @@ Owner: unassigned (mentor until a student takes it).
 
 - `moveTo(rad)`: clamps the goal to the soft limits, moves, finishes at goal.
 - `hold()`: holds the current goal until interrupted. The default command.
-- `stop()`: stops driving the arm.
+- `stop()`: stops driving the arm until interrupted (the arm is not held, so it can fall).
 
 `DriveTeleop` runs a scripted exercise that alternates between two angles
 with one-second pauses, so a sim run produces data without a gamepad.

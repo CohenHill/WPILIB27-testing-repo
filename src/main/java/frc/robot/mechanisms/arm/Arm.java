@@ -75,8 +75,17 @@ public class Arm implements Mechanism {
         .named("Arm hold");
   }
 
-  /** Stops driving the arm. */
+  /**
+   * Stops driving the arm until interrupted. The arm is not held, so it can fall under gravity. (It
+   * must loop: a command that ends at once would hand the arm straight back to hold().)
+   */
   public Command stop() {
-    return run(coroutine -> io.stop()).named("Arm stop");
+    return run(coroutine -> {
+          while (true) {
+            io.stop();
+            coroutine.yield();
+          }
+        })
+        .named("Arm stop");
   }
 }

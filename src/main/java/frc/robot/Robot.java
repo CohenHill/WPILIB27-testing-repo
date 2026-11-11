@@ -25,11 +25,31 @@ public class Robot extends LoggedOpModeRobot {
   public final Arm arm;
   public final Drive drive;
   public final RobotContext context;
-  private SimHook simHook = null;
+  private final SimHook simHook;
   private DriverDashboard dashboard = null;
 
   public Robot() {
-    // Record metadata
+    recordMetadata();
+    startLogging();
+
+    // Mechanisms first, then things that use them
+    arm = new Arm(RunProfile.armIO(Constants.currentMode));
+    drive = new Drive(RunProfile.driveIO(Constants.currentMode));
+    context = new RobotContext(drive::getPose, ZoneMap.load());
+    controls = new Controls(arm, context);
+
+    simHook = findSimHook();
+
+    // The driver table and layout server run on the robot and in an interactive sim, not in replay
+    // and not in headless scenarios.
+    if (Constants.currentMode == RunMode.REAL
+        || (Constants.currentMode == RunMode.SIM && simHook == null)) {
+      dashboard = new DriverDashboard();
+    }
+  }
+
+  /** Build and git details, so every log says exactly which code made it. */
+  private static void recordMetadata() {
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -42,57 +62,46 @@ public class Robot extends LoggedOpModeRobot {
           case 1 -> "Uncommitted changes";
           default -> "Unknown";
         });
+  }
 
-    // Set up data receivers & replay source
+  /** Chooses where the AdvantageKit log goes (or comes from, in replay) and starts the logger. */
+  private void startLogging() {
     switch (Constants.currentMode) {
-      case REAL:
-        // Running on a real robot, log to a USB stick ("/U/logs")
+      case REAL, SIM -> {
+        // Log to a file (robot: USB stick "/U/logs"; sim: "logs/") and to NetworkTables
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
-        break;
-
-      case SIM:
-        // Running a physics simulator, log to a file ("logs/") and NT
-        Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new NT4Publisher());
-        break;
-
-      case REPLAY:
-        // Replaying a log, set up replay source
+      }
+      case REPLAY -> {
+        // Read inputs from a log and write the replayed outputs beside it ("<log>_sim.wpilog")
         setUseTiming(false); // Run as fast as possible
         String logPath = LogFileUtil.findReplayLog();
         Logger.setReplaySource(new WPILOGReader(logPath));
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-        break;
-    }
-
-    // Start AdvantageKit logger
-    Logger.start();
-
-    arm = new Arm(RunProfile.armIO(Constants.currentMode));
-    drive = new Drive(RunProfile.driveIO(Constants.currentMode));
-    context = new RobotContext(drive::getPose, ZoneMap.load());
-    controls = new Controls(arm, context);
-
-    if (Constants.currentMode == RunMode.SIM) {
-      // Sim-only hooks (headless scenarios) live outside the robot code and are found at runtime.
-      for (SimHook hook : ServiceLoader.load(SimHook.class)) {
-        if (hook.begin(this)) {
-          simHook = hook;
-          break;
-        }
       }
     }
-    // The driver table and layout server run on the robot and in an interactive sim, not in replay
-    // and not in headless scenarios.
-    if (Constants.currentMode == RunMode.REAL
-        || (Constants.currentMode == RunMode.SIM && simHook == null)) {
-      dashboard = new DriverDashboard();
+    Logger.start();
+  }
+
+  /**
+   * In simulation, finds a sim-only hook (a headless scenario) if one is on the classpath and wants
+   * to run. Hooks live in src/sim, outside the robot code. Returns null otherwise.
+   */
+  private SimHook findSimHook() {
+    if (Constants.currentMode != RunMode.SIM) {
+      return null;
     }
-    if (simHook != null && System.getenv("SIM_FAST") != null) {
-      // Opt-in only: Commands v3 waits use the real clock, so fast mode desyncs them from physics
-      setUseTiming(false);
+    for (SimHook hook : ServiceLoader.load(SimHook.class)) {
+      if (hook.begin(this)) {
+        if (System.getenv("SIM_FAST") != null) {
+          // Opt-in only: Commands v3 waits use the real clock, so fast mode desyncs them from
+          // physics
+          setUseTiming(false);
+        }
+        return hook;
+      }
     }
+    return null;
   }
 
   /**
