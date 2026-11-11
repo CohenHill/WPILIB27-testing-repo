@@ -203,3 +203,27 @@ spotless {
         endWithNewline()
     }
 }
+
+// Vendor code must stay behind the IO wall: only files under an io/ folder may import it.
+tasks.register('checkVendorImports') {
+    def sources = fileTree('src/main/java') {
+        include '**/*.java'
+        exclude '**/io/**'
+    }
+    inputs.files(sources)
+    doLast {
+        def banned = ~/^\s*import\s+(static\s+)?(com\.ctre|yams|com\.pathplanner|org\.photonvision)[.;]/
+        def violations = []
+        sources.each { f ->
+            f.readLines().eachWithIndex { line, i ->
+                if (line =~ banned) {
+                    violations << "${projectDir.toPath().relativize(f.toPath())}:${i + 1}: ${line.trim()}"
+                }
+            }
+        }
+        if (violations) {
+            throw new GradleException("Vendor imports outside an io/ folder:\n  " + violations.join("\n  "))
+        }
+    }
+}
+check.dependsOn checkVendorImports

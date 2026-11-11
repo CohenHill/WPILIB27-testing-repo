@@ -50,6 +50,8 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 - `src/main/java/frc/robot/opmodes/`: one class per OpMode.
 - `src/main/java/frc/robot/Controls.java`: button bindings.
 - `src/main/java/frc/robot/Constants.java`: holds the current run mode.
+- `src/main/java/frc/robot/RunProfile.java`: picks each mechanism's IO.
+- `src/main/java/frc/robot/mechanisms/`: one folder per mechanism, with `io/`.
 - `src/main/java/frc/robot/RunMode.java`: pure run mode selection (REAL, SIM, REPLAY).
 - Tests live in `src/test/java`.
 
@@ -62,6 +64,38 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 5. Anything that reads wall-clock time or unlogged NetworkTables breaks
    replay. Ask before adding either.
 6. Keep changes small and explainable. Students must be able to read them.
+
+## Architecture rules
+
+1. Vendor code never crosses the IO wall. Only files under an `io/` folder
+   may import `com.ctre`, `yams`, `com.pathplanner` or `org.photonvision`.
+   `checkVendorImports` fails the build otherwise.
+2. Every mechanism ships with a working sim IO.
+3. All inputs update in `Robot.robotPeriodic()` before the scheduler runs.
+4. Command logic goes inside the command body, never beside it.
+5. Coordination between mechanisms uses the Commands v3 `StateMachine`.
+6. Time comes from the logged clock or the loop period only.
+
+## Interfaces that exist today
+
+- `Arm` (`frc.robot.mechanisms.arm`), a Commands v3 `Mechanism`.
+  - Commands: `moveTo(rad)` (finishes at goal), `hold()` (default command),
+    `stop()`.
+  - Logged inputs under `Arm/`: `Connected`, `PositionRad`,
+    `VelocityRadPerSec`, `AppliedVolts`, `SupplyCurrentAmps`.
+  - Logged outputs under `RealOutputs/Arm/`: `GoalRad`, `AtGoal`.
+- `ArmIO`: `updateInputs`, `setTargetPosition`, `setVoltage`, `stop`. An
+  empty `new ArmIO() {}` is the replay IO.
+- `RunProfile.armIO(RunMode)`: picks the IO (REAL, SIM, REPLAY).
+- Details: `docs/robot/arm.md`.
+
+## Known broken or stale
+
+- `ArmIOTalonFX` compiles but has never run on hardware. The CAN id, bus
+  name and gains in `ArmConstants` are placeholders.
+- Sim gains and arm physics in `ArmConstants` are untuned.
+- Nothing enables an OpMode headless yet, so a headless sim run records no
+  arm motion (planned for M3).
 
 ## Open questions
 
