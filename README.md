@@ -15,6 +15,7 @@ AdvantageKit logging and replay.
 
 ## Where things are
 
+- `docs/setup.md`, `docs/tour.md`, `docs/first-task.md`: new student path.
 - `AGENTS.md`: project rules and commands, for people and AI tools.
 - `CONTRIBUTING.md`: how to branch, commit and open a pull request.
 - `docs/ROADMAP.md`: what is being built and in what order.
