@@ -42,6 +42,15 @@ if "%CMD%"=="replay" (
   echo {"replayLog":"%~dpn2_sim.wpilog"}
   exit /b 0
 )
+if "%CMD%"=="hook" (
+  if not exist build\libs\frc-tools.jar call gradlew.bat -q --console=plain toolsJar > nul 2>&1
+  if defined JAVA_HOME (
+    "%JAVA_HOME%\bin\java" -jar build\libs\frc-tools.jar hook %2 %3 %4
+  ) else (
+    java -jar build\libs\frc-tools.jar hook %2 %3 %4
+  )
+  exit /b %ERRORLEVEL%
+)
 if "%CMD%"=="log" (
   shift
   call gradlew.bat -q --console=plain frcLog --args="%*"

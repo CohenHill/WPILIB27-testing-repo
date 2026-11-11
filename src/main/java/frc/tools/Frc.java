@@ -8,6 +8,18 @@ public final class Frc {
   private Frc() {}
 
   public static void main(String[] args) {
+    if (args.length > 0 && args[0].equals("hook")) {
+      System.exit(frc.tools.hooks.HookMain.run(java.util.Arrays.copyOfRange(args, 1, args.length)));
+    }
+    if (args.length > 0 && args[0].equals("sync-ai")) {
+      boolean check = args.length > 1 && args[1].equals("--check");
+      System.exit(
+          SyncAi.run(
+              java.nio.file.Path.of(System.getProperty("user.dir")),
+              check,
+              System.out,
+              System.err));
+    }
     System.exit(run(args));
   }
 
