@@ -20,10 +20,10 @@ Gaps found while reading it:
 | --- | --- | --- |
 | No `src/test`, and CI only builds | Nothing fails when behavior breaks | M1 (done) |
 | Base package is `first.robot` | Renaming gets harder with every file added | M1 (done) |
-| No mechanism, no IO interface, no inputs logged | Replay has nothing to replay yet | M2 |
+| No mechanism, no IO interface, no inputs logged | Replay has nothing to replay yet | M2 (done) |
 | Sim GUI is off by default and nothing can enable an OpMode headless | Agents and CI cannot exercise the robot | M3 |
 | PhotonLib is not installed | Needed for vision | M6 |
-| `AGENTS.md` has no "Interfaces that exist today" or "Known broken or stale" sections | Agents need them once there are mechanisms | M2 |
+| `AGENTS.md` has no "Interfaces that exist today" or "Known broken or stale" sections | Agents need them once there are mechanisms | M2 (done) |
 | No contributing guide, PR template, code owners or branch protection | Team goals on GitHub rules and commit messages | M1 |
 
 ## Milestones at a glance
