@@ -1,6 +1,6 @@
-package first.robot.opmodes;
+package frc.robot.opmodes;
 
-import first.robot.Robot;
+import frc.robot.Robot;
 import org.littletonrobotics.junction.Logger;
 import org.wpilib.opmode.Autonomous;
 import org.wpilib.opmode.OpMode;

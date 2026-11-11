@@ -45,11 +45,13 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 
 ## Layout
 
-- `src/main/java/first/Main.java`: entry point. Do not change.
-- `src/main/java/first/robot/Robot.java`: logging setup, runs the Commands v3 scheduler each loop.
-- `src/main/java/first/robot/opmodes/`: one class per OpMode.
-- `src/main/java/first/robot/Controls.java`: button bindings.
-- `src/main/java/first/robot/Constants.java`: run mode selection.
+- `src/main/java/frc/Main.java`: entry point. Do not change.
+- `src/main/java/frc/robot/Robot.java`: logging setup, runs the Commands v3 scheduler each loop.
+- `src/main/java/frc/robot/opmodes/`: one class per OpMode.
+- `src/main/java/frc/robot/Controls.java`: button bindings.
+- `src/main/java/frc/robot/Constants.java`: holds the current run mode.
+- `src/main/java/frc/robot/RunMode.java`: pure run mode selection (REAL, SIM, REPLAY).
+- Tests live in `src/test/java`.
 
 ## Rules
 
@@ -71,3 +73,4 @@ None yet. Each entry will name an owner. If a task touches one, stop and ask.
 - [ ] New WPILib or vendor calls were checked against source or docs.
 - [ ] No edits to protected paths (rule 4).
 - [ ] If behavior changed: simulated, or stated as not verified.
+- [ ] New logic has a unit test, or the reason it cannot is stated.
