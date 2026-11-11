@@ -197,6 +197,12 @@ motor decided: Kraken X60):
 
 ## M7: Vision and localization
 
+> **BLOCKED (Cohen, confirmed):** PhotonLib does not support this version of
+> WPILib, so it cannot be installed. M7 waits for a PhotonLib release that does.
+> M8 depends on M7 and waits with it. The M7 design (`VisionIO` per camera,
+> shared rejection rules, `drive.addVisionMeasurement`) is unchanged; the Drive
+> IO already has `addVisionMeasurement` ready.
+
 Deliverables:
 
 - PhotonLib added (human installs the vendor library).
