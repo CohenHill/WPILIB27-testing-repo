@@ -10,12 +10,13 @@ package first.robot;
 import org.wpilib.framework.RobotBase;
 
 /**
- * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
- * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
- * (log replay from a file).
+ * This class defines the runtime mode used by AdvantageKit. The mode is "real" when running on a
+ * robot. In simulation it is "replay" if the AKIT_LOG_PATH environment variable is set (to the path
+ * of a .wpilog file), and "sim" otherwise. No source edit is needed to switch.
  */
 public final class Constants {
-  public static final Mode simMode = Mode.SIM;
+  private static final Mode simMode =
+      System.getenv("AKIT_LOG_PATH") != null ? Mode.REPLAY : Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   public static enum Mode {

@@ -188,3 +188,6 @@ compile_commands.json
 
 # Version file
 src/main/java/first/robot/BuildConstants.java
+# Personal agent settings
+CLAUDE.local.md
+.claude/settings.local.json

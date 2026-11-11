@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew build*)",
+      "Bash(./gradlew test*)",
+      "Bash(./gradlew run*)",
+      "Bash(./gradlew spotlessApply*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "WebFetch(domain:docs.wpilib.org)",
+      "WebFetch(domain:github.wpilib.org)",
+      "WebFetch(domain:docs.advantagekit.org)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
+    ],
+    "deny": [
+      "Bash(./gradlew deploy*)",
+      "Bash(./gradlew eventDeploy*)",
+      "Bash(git push*)",
+      "Edit(vendordeps/**)",
+      "Edit(.wpilib/**)",
+      "Edit(gradle/**)"
+    ]
+  }
+}
