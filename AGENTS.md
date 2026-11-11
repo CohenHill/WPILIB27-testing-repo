@@ -36,9 +36,9 @@ then write the call. Links are in `docs/reference/2027-notes.md`.
 
 - Build and run tests: `./gradlew build`
 - Tests only: `./gradlew test`
-- Simulate (writes a log to `logs/`): `./gradlew simulateJava`
-- Replay a log: `AKIT_LOG_PATH=<path to .wpilog> ./gradlew simulateJava`
-  (PowerShell: `$env:AKIT_LOG_PATH='<path>'; ./gradlew simulateJava`)
+- Simulate (writes a log to `logs/`): `./gradlew run`
+- Replay a log: `AKIT_LOG_PATH=<path to .wpilog> ./gradlew run`
+  (PowerShell: `$env:AKIT_LOG_PATH='<path>'; ./gradlew run`)
 - Windows: use `.\gradlew.bat` in place of `./gradlew`.
 
 The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
