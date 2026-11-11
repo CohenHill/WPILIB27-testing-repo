@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import frc.robot.mechanisms.arm.Arm;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedOpModeRobot;
 import org.littletonrobotics.junction.Logger;
@@ -17,6 +18,7 @@ import org.wpilib.command3.Scheduler;
 
 public class Robot extends LoggedOpModeRobot {
   public final Controls controls;
+  public final Arm arm;
 
   public Robot() {
     // Record metadata
@@ -60,11 +62,25 @@ public class Robot extends LoggedOpModeRobot {
     Logger.start();
 
     controls = new Controls();
+    arm = new Arm(RunProfile.armIO(Constants.currentMode));
   }
 
-  /** Runs every loop in every mode: run the Commands v3 scheduler once. */
+  /**
+   * Runs every loop in every mode.
+   *
+   * <p>Order matters. Commands v3 mechanisms have no periodic(), so inputs must be read and logged
+   * here, before any command logic runs. If step 1 is skipped, replay silently breaks because
+   * commands would see unlogged hardware values.
+   */
   @Override
   public void robotPeriodic() {
+    // 1. Update and log every mechanism's inputs
+    arm.updateInputs();
+
+    // 2. Run commands
     Scheduler.getDefault().run();
+
+    // 3. Record outputs
+    arm.recordOutputs();
   }
 }
