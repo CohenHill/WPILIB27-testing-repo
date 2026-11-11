@@ -46,7 +46,7 @@ The build runs Spotless and reformats Java, Gradle, JSON and Markdown.
 ## Layout
 
 - `src/main/java/first/Main.java`: entry point. Do not change.
-- `src/main/java/first/robot/Robot.java`: logging setup, scheduler loop.
+- `src/main/java/first/robot/Robot.java`: logging setup, runs the Commands v3 scheduler each loop.
 - `src/main/java/first/robot/opmodes/`: one class per OpMode.
 - `src/main/java/first/robot/Controls.java`: button bindings.
 - `src/main/java/first/robot/Constants.java`: run mode selection.

@@ -8,13 +8,16 @@
 package first.robot;
 
 import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.LoggedOpModeRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.wpilib.command3.Scheduler;
 
-public class Robot extends LoggedRobot {
+public class Robot extends LoggedOpModeRobot {
+  public final Controls controls;
+
   public Robot() {
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -55,33 +58,13 @@ public class Robot extends LoggedRobot {
 
     // Start AdvantageKit logger
     Logger.start();
+
+    controls = new Controls();
   }
 
-  /** This function is called periodically during all modes. */
+  /** Runs every loop in every mode: run the Commands v3 scheduler once. */
   @Override
-  public void robotPeriodic() {}
-
-  /** This function is run once each time the robot enters autonomous mode. */
-  @Override
-  public void autonomousInit() {}
-
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {}
-
-  /** This function is called once each time the robot enters teleoperated mode. */
-  @Override
-  public void teleopInit() {}
-
-  /** This function is called periodically during teleoperated mode. */
-  @Override
-  public void teleopPeriodic() {}
-
-  /** This function is called once each time the robot enters utility mode. */
-  @Override
-  public void utilityInit() {}
-
-  /** This function is called periodically during utility mode. */
-  @Override
-  public void utilityPeriodic() {}
+  public void robotPeriodic() {
+    Scheduler.getDefault().run();
+  }
 }
