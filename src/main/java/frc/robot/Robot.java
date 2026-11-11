@@ -8,6 +8,7 @@
 package frc.robot;
 
 import frc.robot.mechanisms.arm.Arm;
+import frc.robot.mechanisms.drive.Drive;
 import frc.robot.sim.SimDriver;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedOpModeRobot;
@@ -20,6 +21,7 @@ import org.wpilib.command3.Scheduler;
 public class Robot extends LoggedOpModeRobot {
   public final Controls controls;
   public final Arm arm;
+  public final Drive drive;
   private SimDriver simDriver = null;
 
   public Robot() {
@@ -65,6 +67,7 @@ public class Robot extends LoggedOpModeRobot {
 
     controls = new Controls();
     arm = new Arm(RunProfile.armIO(Constants.currentMode));
+    drive = new Drive(RunProfile.driveIO(Constants.currentMode));
 
     simDriver = SimDriver.fromEnvironment(Constants.currentMode, this).orElse(null);
     if (simDriver != null) {
@@ -87,12 +90,14 @@ public class Robot extends LoggedOpModeRobot {
   public void robotPeriodic() {
     // 1. Update and log every mechanism's inputs
     arm.updateInputs();
+    drive.updateInputs();
 
     // 2. Run commands
     Scheduler.getDefault().run();
 
     // 3. Record outputs
     arm.recordOutputs();
+    drive.recordOutputs();
   }
 
   @Override

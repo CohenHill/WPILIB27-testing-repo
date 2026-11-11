@@ -4,6 +4,8 @@ import frc.robot.mechanisms.arm.io.ArmIO;
 import frc.robot.mechanisms.arm.io.ArmIOSim;
 import frc.robot.mechanisms.arm.io.ArmIOTalonFX;
 import frc.robot.mechanisms.arm.io.ArmIOYams;
+import frc.robot.mechanisms.drive.io.DriveIO;
+import frc.robot.mechanisms.drive.io.DriveIOCtre;
 
 /**
  * Picks the IO implementation for each mechanism. For now the choice comes from the run mode only.
@@ -27,6 +29,14 @@ public final class RunProfile {
       case REAL -> yams ? new ArmIOYams() : new ArmIOTalonFX();
       case SIM -> yams ? new ArmIOYams() : new ArmIOSim();
       case REPLAY -> new ArmIO() {};
+    };
+  }
+
+  /** Drive IO for a mode. The same CTRE IO serves the real robot and simulation. */
+  public static DriveIO driveIO(RunMode mode) {
+    return switch (mode) {
+      case REAL, SIM -> new DriveIOCtre();
+      case REPLAY -> new DriveIO() {};
     };
   }
 }
