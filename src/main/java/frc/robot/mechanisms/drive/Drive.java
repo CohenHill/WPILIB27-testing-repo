@@ -43,6 +43,9 @@ public class Drive implements Mechanism {
   /** Records the drive outputs. Call every loop, after the scheduler runs. */
   public void recordOutputs() {
     Logger.recordOutput("Drive/Pose", inputs.pose);
+    Logger.recordOutput("Drive/PoseX", inputs.pose.getX());
+    Logger.recordOutput("Drive/PoseY", inputs.pose.getY());
+    Logger.recordOutput("Drive/HeadingRad", inputs.pose.getRotation().getRadians());
     Logger.recordOutput("Drive/ModuleStates", inputs.moduleVelocities);
     Logger.recordOutput("Drive/ModuleTargets", inputs.moduleTargets);
   }
