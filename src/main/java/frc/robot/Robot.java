@@ -8,6 +8,7 @@
 package frc.robot;
 
 import frc.robot.mechanisms.arm.Arm;
+import frc.robot.sim.SimDriver;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedOpModeRobot;
 import org.littletonrobotics.junction.Logger;
@@ -19,6 +20,7 @@ import org.wpilib.command3.Scheduler;
 public class Robot extends LoggedOpModeRobot {
   public final Controls controls;
   public final Arm arm;
+  private SimDriver simDriver = null;
 
   public Robot() {
     // Record metadata
@@ -63,6 +65,12 @@ public class Robot extends LoggedOpModeRobot {
 
     controls = new Controls();
     arm = new Arm(RunProfile.armIO(Constants.currentMode));
+
+    simDriver = SimDriver.fromEnvironment(Constants.currentMode, this).orElse(null);
+    if (simDriver != null && System.getenv("SIM_FAST") != null) {
+      // Opt-in only: Commands v3 waits use the real clock, so fast mode desyncs them from physics
+      setUseTiming(false);
+    }
   }
 
   /**
@@ -82,5 +90,12 @@ public class Robot extends LoggedOpModeRobot {
 
     // 3. Record outputs
     arm.recordOutputs();
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    if (simDriver != null) {
+      simDriver.update();
+    }
   }
 }

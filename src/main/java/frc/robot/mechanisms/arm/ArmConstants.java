@@ -24,10 +24,10 @@ public final class ArmConstants {
   public static final double START_ANGLE_RAD = 0.0;
 
   /** Simulation control gains. Volts per radian, volts per radian per second, volts. */
-  public static final double SIM_KP = 60.0;
+  public static final double SIM_KP = 40.0;
 
-  public static final double SIM_KD = 4.0;
-  public static final double SIM_KG = 1.0;
+  public static final double SIM_KD = 0.2;
+  public static final double SIM_KG = 0.12;
 
   /** Placeholder CAN id and bus name. Not wired to hardware. */
   public static final int CAN_ID = 20;
