@@ -63,6 +63,12 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+// Prints scenario names, one per line (used by `frc sim --list`)
+task(listScenarios, type: JavaExec) {
+    mainClass = "frc.robot.sim.ListScenarios"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {

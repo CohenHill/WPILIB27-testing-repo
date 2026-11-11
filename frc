@@ -1,0 +1,73 @@
+#!/bin/sh
+# frc: one entry point for tests, headless simulation, replay and log queries.
+# Usage: ./frc test | sim <scenario> | sim --list | replay <log> | log <keys|stats|diff> ...
+cd "$(dirname "$0")" || exit 2
+
+# Gradle needs JDK 25. Use the WPILib 2027 JDK if JAVA_HOME is not set.
+if [ -z "${JAVA_HOME:-}" ]; then
+  for d in "$HOME"/.wpilib/2027*/jdk "$HOME"/wpilib/2027*/jdk; do
+    [ -d "$d" ] && JAVA_HOME="$d" && export JAVA_HOME
+  done
+fi
+
+usage() {
+  echo "usage: frc test | sim <scenario> | sim --list | replay <log> | log <keys|stats|diff> ..." >&2
+  exit 2
+}
+
+[ $# -ge 1 ] || usage
+cmd="$1"
+shift
+
+case "$cmd" in
+  test)
+    exec ./gradlew test "$@"
+    ;;
+  sim)
+    [ $# -ge 1 ] || usage
+    if [ "$1" = "--list" ]; then
+      ./gradlew -q --console=plain listScenarios | grep -E '^[A-Za-z][A-Za-z0-9_]*$'
+      exit 0
+    fi
+    name="$1"
+    summary="build/sim/$name/summary.json"
+    rm -f "$summary"
+    mkdir -p build
+    SIM_SCENARIO="$name" ./gradlew -q --console=plain run >build/frc-sim.log 2>&1
+    if [ ! -f "$summary" ]; then
+      echo "frc: no summary produced for scenario '$name'; see build/frc-sim.log" >&2
+      tail -n 20 build/frc-sim.log >&2
+      exit 2
+    fi
+    cat "$summary"
+    grep -q '"pass":true' "$summary"
+    exit $?
+    ;;
+  replay)
+    [ $# -ge 1 ] || usage
+    log="$1"
+    if [ ! -f "$log" ]; then
+      echo "frc: log not found: $log" >&2
+      exit 2
+    fi
+    case "$log" in /*) ;; *) log="$PWD/$log" ;; esac
+    mkdir -p build
+    AKIT_LOG_PATH="$log" ./gradlew -q --console=plain run >build/frc-replay.log 2>&1
+    status=$?
+    base="${log%.wpilog}"
+    out=$(ls -t "${base}"_sim*.wpilog 2>/dev/null | head -n 1)
+    if [ $status -ne 0 ] || [ -z "$out" ]; then
+      echo "frc: replay failed; see build/frc-replay.log" >&2
+      tail -n 20 build/frc-replay.log >&2
+      exit 1
+    fi
+    printf '{"replayLog":"%s"}\n' "$out"
+    ;;
+  log)
+    [ $# -ge 1 ] || usage
+    exec ./gradlew -q --console=plain frcLog --args="$*"
+    ;;
+  *)
+    usage
+    ;;
+esac
