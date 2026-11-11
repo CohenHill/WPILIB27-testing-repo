@@ -182,8 +182,8 @@ not, fall back to per-module `ModuleIO` on raw Phoenix 6 devices.
 
 Done when: scenarios pass in CI and a replayed drive log matches.
 
-Results (M6 done in simulation; hardware, Tuner X output and the steering-motor
-decision are still open):
+Results (M6 done in simulation; hardware and Tuner X output are still open; steering
+motor decided: Kraken X60):
 
 - `TunerConstants` was copied from the Phoenix6-Examples `2027_alpha7` branch
   and edited, because no generated file existed. All hardware values are
