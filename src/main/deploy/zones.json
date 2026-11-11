@@ -1,0 +1,47 @@
+{
+  "note": "PLACEHOLDER polygons until kickoff. Meters, field coordinates. First matching zone wins.",
+  "zones": [
+    {
+      "name": "LEFT",
+      "polygon": [
+        [
+          0,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "name": "RIGHT",
+      "polygon": [
+        [
+          8.0001,
+          0
+        ],
+        [
+          16.5,
+          0
+        ],
+        [
+          16.5,
+          8
+        ],
+        [
+          8.0001,
+          8
+        ]
+      ]
+    }
+  ]
+}

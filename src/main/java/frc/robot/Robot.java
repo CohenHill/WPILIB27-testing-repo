@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import frc.robot.context.RobotContext;
+import frc.robot.context.ZoneMap;
 import frc.robot.mechanisms.arm.Arm;
 import frc.robot.mechanisms.drive.Drive;
 import frc.robot.sim.SimDriver;
@@ -22,6 +24,7 @@ public class Robot extends LoggedOpModeRobot {
   public final Controls controls;
   public final Arm arm;
   public final Drive drive;
+  public final RobotContext context;
   private SimDriver simDriver = null;
 
   public Robot() {
@@ -67,7 +70,8 @@ public class Robot extends LoggedOpModeRobot {
 
     arm = new Arm(RunProfile.armIO(Constants.currentMode));
     drive = new Drive(RunProfile.driveIO(Constants.currentMode));
-    controls = new Controls(arm);
+    context = new RobotContext(drive::getPose, ZoneMap.load());
+    controls = new Controls(arm, context);
 
     simDriver = SimDriver.fromEnvironment(Constants.currentMode, this).orElse(null);
     if (simDriver != null) {
@@ -91,6 +95,7 @@ public class Robot extends LoggedOpModeRobot {
     // 1. Update and log every mechanism's inputs
     arm.updateInputs();
     drive.updateInputs();
+    context.update();
 
     // 2. Run commands
     Scheduler.getDefault().run();
@@ -98,6 +103,7 @@ public class Robot extends LoggedOpModeRobot {
     // 3. Record outputs
     arm.recordOutputs();
     drive.recordOutputs();
+    context.recordOutputs();
   }
 
   @Override

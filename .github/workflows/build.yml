@@ -44,6 +44,8 @@ jobs:
         run: ./frc sim DriveRotateInPlace || ./frc sim DriveRotateInPlace
       - name: Run TeleopIdleHoldsStill
         run: ./frc sim TeleopIdleHoldsStill || ./frc sim TeleopIdleHoldsStill
+      - name: Run ZoneActionDiffers
+        run: ./frc sim ZoneActionDiffers || ./frc sim ZoneActionDiffers
       - name: Replay a scenario log and compare outputs
         run: |
           ./frc sim ArmReachesGoal
