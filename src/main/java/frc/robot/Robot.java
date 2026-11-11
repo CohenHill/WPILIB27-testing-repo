@@ -67,6 +67,9 @@ public class Robot extends LoggedOpModeRobot {
     arm = new Arm(RunProfile.armIO(Constants.currentMode));
 
     simDriver = SimDriver.fromEnvironment(Constants.currentMode, this).orElse(null);
+    if (simDriver != null) {
+      simDriver.begin();
+    }
     if (simDriver != null && System.getenv("SIM_FAST") != null) {
       // Opt-in only: Commands v3 waits use the real clock, so fast mode desyncs them from physics
       setUseTiming(false);

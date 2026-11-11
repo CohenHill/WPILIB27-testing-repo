@@ -3,7 +3,7 @@ package frc.robot.sim;
 /** A named condition evaluated over a scenario run. */
 public interface Check {
   /** Run statistics supplied by the SimDriver at evaluation time. */
-  record Stats(int loops, int overruns) {}
+  record Stats(int loops, int overruns, int firstOverrunLoop, double maxGapMs) {}
 
   /** The outcome of one check. */
   record Result(String name, boolean pass, String observed, String expected) {}

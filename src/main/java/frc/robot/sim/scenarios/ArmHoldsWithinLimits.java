@@ -62,8 +62,16 @@ public class ArmHoldsWithinLimits implements Scenario {
 
     @Override
     public Result result(Stats stats) {
-      return new Result(
-          "NoLoopOverruns", stats.overruns() == 0, stats.overruns() + " overruns", "0");
+      String observed =
+          stats.overruns() == 0
+              ? "0 overruns, worst loop gap " + Math.round(stats.maxGapMs()) + " ms"
+              : stats.overruns()
+                  + " overruns, first at loop "
+                  + stats.firstOverrunLoop()
+                  + ", worst loop gap "
+                  + Math.round(stats.maxGapMs())
+                  + " ms";
+      return new Result("NoLoopOverruns", stats.overruns() == 0, observed, "0");
     }
   }
 }

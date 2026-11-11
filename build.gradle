@@ -69,6 +69,12 @@ task(listScenarios, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+// Log queries for the frc CLI: `./gradlew -q frcLog --args="keys <log>"`
+task(frcLog, type: JavaExec) {
+    mainClass = "frc.tools.Frc"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {

@@ -65,7 +65,19 @@ case "$cmd" in
     ;;
   log)
     [ $# -ge 1 ] || usage
-    exec ./gradlew -q --console=plain frcLog --args="$*"
+    qargs=""
+    for a in "$@"; do qargs="$qargs \"$a\""; done
+    mkdir -p build
+    ./gradlew -q --console=plain frcLog --args="$qargs" >build/frc-log.out 2>build/frc-log.err
+    status=$?
+    # Keep only the tool's own output: JSON lines on stdout, "frc:" lines on stderr.
+    grep '^{' build/frc-log.out
+    grep '^frc:' build/frc-log.err >&2
+    grep '^frc:' build/frc-log.out >&2
+    if [ $status -ne 0 ]; then
+      code=$(sed -n 's/.*non-zero exit value \([0-9][0-9]*\).*/\1/p' build/frc-log.err | head -n 1)
+      exit "${code:-1}"
+    fi
     ;;
   *)
     usage

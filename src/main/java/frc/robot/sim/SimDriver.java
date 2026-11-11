@@ -24,13 +24,17 @@ public final class SimDriver {
   private static final double PERIOD_SEC = LoggedOpModeRobot.DEFAULT_PERIOD;
 
   /** Loops ignored for overrun counting while the JVM warms up. */
-  private static final int WARMUP_LOOPS = 10;
+  private static final int WARMUP_LOOPS = 25;
+
+  /** A loop counts as an overrun above this many periods, as in LoggedOpModeRobot's watchdog. */
+  private static final double OVERRUN_PERIODS = 4.0;
 
   private final Scenario scenario;
   private final List<Check> checks;
   private int loop = 0;
-  private boolean started = false;
   private int overruns = 0;
+  private int firstOverrunLoop = -1;
+  private double maxGapMs = 0;
   private long lastLoopNs = 0;
 
   private SimDriver(Scenario scenario, Robot robot) {
@@ -52,30 +56,41 @@ public final class SimDriver {
     return Optional.of(new SimDriver(scenario, robot));
   }
 
+  /**
+   * Selects the scenario's OpMode and enables the robot. Call once from the Robot constructor,
+   * before the first loop. Setting the Driver Station state before the loop starts keeps the logged
+   * state and the robot's view of it identical from the first cycle, so replay matches. Changing it
+   * mid-run would make the log lead the robot by one cycle.
+   */
+  public void begin() {
+    OpModeOption option =
+        Arrays.stream(DriverStationSim.getOpModeOptions())
+            .filter(o -> o.name.equals(scenario.opMode()))
+            .findFirst()
+            .orElse(null);
+    if (option == null) {
+      System.err.println("[SimDriver] No OpMode named " + scenario.opMode());
+      System.exit(2);
+    }
+    DriverStationSim.setDsAttached(true);
+    DriverStationSim.setRobotMode(option.getMode());
+    DriverStationSim.setOpMode(option.id);
+    DriverStationSim.setEnabled(true);
+    DriverStationSim.notifyNewData();
+  }
+
   /** Call once per loop from simulationPeriodic(). */
   public void update() {
-    if (!started) {
-      OpModeOption option =
-          Arrays.stream(DriverStationSim.getOpModeOptions())
-              .filter(o -> o.name.equals(scenario.opMode()))
-              .findFirst()
-              .orElse(null);
-      if (option == null) {
-        System.err.println("[SimDriver] No OpMode named " + scenario.opMode());
-        System.exit(2);
-      }
-      DriverStationSim.setDsAttached(true);
-      DriverStationSim.setRobotMode(option.getMode());
-      DriverStationSim.setOpMode(option.id);
-      DriverStationSim.setEnabled(true);
-      DriverStationSim.notifyNewData();
-      started = true;
-      return;
-    }
-
     long now = System.nanoTime();
-    if (loop >= WARMUP_LOOPS && lastLoopNs != 0 && (now - lastLoopNs) / 1e9 > 2 * PERIOD_SEC) {
-      overruns++;
+    if (loop >= WARMUP_LOOPS && lastLoopNs != 0) {
+      double gapSec = (now - lastLoopNs) / 1e9;
+      maxGapMs = Math.max(maxGapMs, gapSec * 1000.0);
+      if (gapSec > OVERRUN_PERIODS * PERIOD_SEC) {
+        overruns++;
+        if (firstOverrunLoop < 0) {
+          firstOverrunLoop = loop;
+        }
+      }
     }
     lastLoopNs = now;
 
@@ -90,7 +105,7 @@ public final class SimDriver {
     DriverStationSim.setEnabled(false);
     DriverStationSim.notifyNewData();
 
-    Check.Stats stats = new Check.Stats(loop, overruns);
+    Check.Stats stats = new Check.Stats(loop, overruns, firstOverrunLoop, maxGapMs);
     List<Check.Result> results = new ArrayList<>();
     for (Check c : checks) {
       results.add(c.result(stats));
@@ -133,6 +148,7 @@ public final class SimDriver {
     }
     sb.append("],\"loops\":").append(stats.loops());
     sb.append(",\"loopOverruns\":").append(stats.overruns());
+    sb.append(",\"maxLoopGapMs\":").append(Math.round(stats.maxGapMs() * 10) / 10.0);
     sb.append(",\"log\":").append(json(logPath)).append("}\n");
     try {
       Path dir = Path.of("build", "sim", scenario.name());
